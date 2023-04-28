@@ -1,5 +1,5 @@
 # mini-smart-switch2
-mini smart switch - Прошивка родного модуля для работы без облака, через mqtt сервис.
+mini smart switch - Прошивка родного модуля для работы без облака, через mqtt сервис. или прошивка в аналог [esphome - libretuya](https://docs.libretiny.eu/docs/flashing/esphome/). Конфиг в конце сообщения
 
 ![photo_5406796972041551310_y](https://user-images.githubusercontent.com/64173457/199171022-25f41710-afef-4c5f-81bd-28cb0680579a.jpg)
 
@@ -67,7 +67,101 @@ python uartprogram c:\temp\OpenBK7231N_QIO_1.14.104.bin --unprotect -d com10 -w 
 
 ![photo_5404545172227867299_y](https://user-images.githubusercontent.com/64173457/199177796-6453d2f0-f502-4126-bfef-fbc1a511b19c.jpg)
 
+yaml esphome [libretuya](https://docs.libretiny.eu/docs/flashing/esphome/)
+```
+substitutions:
+  board_name: "mini2"
 
+esphome:
+  name: $board_name
+  project:
+    name: "MiniSmartSwitch/Aubess.LibreTuya"
+    version: "BL2028N"
+  comment: "коридор"
+
+libretuya:
+  board: generic-bk7231n-qfn32-tuya
+  framework:
+    version: dev
+
+api:
+  encryption:
+    key: !secret keyapi 
+  #reboot_timeout: 0s
+
+ota:
+  password: !secret passwordota
+
+logger:
+  baud_rate: 0
+
+captive_portal:
+wifi:
+  ssid: !secret wifi1
+  password: !secret password1
+  ap:
+    ssid: "$board_name Hotspot"
+    password: !secret password1
+
+web_server:
+  port: 80  
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: P26 # контакты выключателя
+      mode: INPUT_PULLUP
+      inverted: true
+    name: switch_$board_name
+    on_state:
+    - light.toggle: light_1
+    
+  - platform: gpio
+    pin:
+      number: P6 # кнопка
+      mode: INPUT_PULLUP
+      inverted: true
+    name: key_$board_name
+    on_press:
+    - light.toggle: light_1
+
+output:
+  - platform: gpio
+    pin: P24
+    id: output1
+
+light:
+  - platform: status_led
+    name: Status_$board_name
+    id: light_s
+    internal: true
+    pin:
+      number: P7 # индикатор
+#      inverted: true
+
+  - platform: binary
+    name: $board_name
+    id: light_1
+    output: output1
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      - light.turn_off: light_s
+    on_turn_off:
+      - light.turn_on: light_s
+
+
+sensor:
+  - platform: wifi_signal
+    name: WiFi_Signal.$board_name
+  - platform: uptime
+    name: uptime_sensor.$board_name
+button:
+  - platform: restart
+    name: Reset.$board_name
+text_sensor:
+  - platform: version
+    name: Version.$board_name
+```
 
 
 
