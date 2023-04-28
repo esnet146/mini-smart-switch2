@@ -143,7 +143,7 @@ light:
     name: $board_name
     id: light_1
     output: output1
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
       - light.turn_off: light_s
     on_turn_off:
